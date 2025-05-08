@@ -1,0 +1,8 @@
+6. Testing Aplikasi
+Buka http://ekgbpsmojokerto.ct.ws
+
+Login dengan:
+
+Admin: NIP admin, Password password
+
+Pegawai: NIP 12345, Password password
