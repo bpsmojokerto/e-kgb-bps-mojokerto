@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Login from './components/Login';
+import HeartPulse from './components/HeartPulse';
 import { supabase } from './supabaseClient';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -43,8 +44,8 @@ function App() {
             position: 'relative'
           }}
         >
-          <header style={{ 
-            background: 'rgba(255, 255, 255, 0.1)', 
+          <header style={{
+            background: 'rgba(255, 255, 255, 0.1)',
             backdropFilter: 'blur(15px)',
             borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
             padding: '1rem 2rem',
@@ -60,8 +61,8 @@ function App() {
             </div>
             {/* Tombol logout hanya muncul jika user sudah login */}
             {user && (
-              <button 
-                className="btn btn-outline-light" 
+              <button
+                className="btn btn-outline-light"
                 onClick={handleLogout}
                 style={{
                   padding: '8px 20px',
@@ -105,6 +106,8 @@ function App() {
             </Routes>
           </div>
         </div>
+        {/* Heart Pulse Status Indicator */}
+        <HeartPulse />
       </div>
     </Router>
   );
