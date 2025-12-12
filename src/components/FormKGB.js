@@ -8,10 +8,12 @@ const initialState = {
   kantor: '',
   gaji_pokok_lama: '',
   tmt_lama: '',
-  masa_kerja_lama: '',
+  masa_kerja_lama_tahun: '',
+  masa_kerja_lama_bulan: '',
   gaji_pokok_baru: '',
   tmt_baru: '',
-  masa_kerja_baru: '',
+  masa_kerja_baru_tahun: '',
+  masa_kerja_baru_bulan: '',
   golongan: '',
   tanggal_cetak: new Date().toISOString().slice(0, 10),
   sk_tanggal: '',
@@ -26,7 +28,27 @@ function FormKGB({ onSubmit, onCancel, initialData }) {
   // Update form when initialData changes
   useEffect(() => {
     if (initialData) {
-      setForm(initialData);
+      // Jika data menggunakan format lama, konversi ke format baru
+      if (initialData.masa_kerja_lama && !initialData.masa_kerja_lama_tahun) {
+        const masaKerjaLama = parseFloat(initialData.masa_kerja_lama) || 0;
+        const masaKerjaBaru = parseFloat(initialData.masa_kerja_baru) || 0;
+        
+        setForm({
+          ...initialData,
+          masa_kerja_lama_tahun: Math.floor(masaKerjaLama),
+          masa_kerja_lama_bulan: Math.round((masaKerjaLama % 1) * 12),
+          masa_kerja_baru_tahun: Math.floor(masaKerjaBaru),
+          masa_kerja_baru_bulan: Math.round((masaKerjaBaru % 1) * 12)
+        });
+      } else {
+        setForm({
+          ...initialData,
+          masa_kerja_lama_tahun: initialData.masa_kerja_lama_tahun || 0,
+          masa_kerja_lama_bulan: initialData.masa_kerja_lama_bulan || 0,
+          masa_kerja_baru_tahun: initialData.masa_kerja_baru_tahun || 0,
+          masa_kerja_baru_bulan: initialData.masa_kerja_baru_bulan || 0
+        });
+      }
     }
   }, [initialData]);
 
@@ -63,20 +85,37 @@ function FormKGB({ onSubmit, onCancel, initialData }) {
     if (!validateForm()) {
       return;
     }
+
+    // Konversi masa kerja ke format yang benar
+    const masaKerjaLamaTahun = Number(form.masa_kerja_lama_tahun) || 0;
+    const masaKerjaLamaBulan = Number(form.masa_kerja_lama_bulan) || 0;
+    const masaKerjaBaruTahun = Number(form.masa_kerja_baru_tahun) || 0;
+    const masaKerjaBaruBulan = Number(form.masa_kerja_baru_bulan) || 0;
+
+    console.log('Masa Kerja Lama:', masaKerjaLamaTahun, 'tahun', masaKerjaLamaBulan, 'bulan');
+    console.log('Masa Kerja Baru:', masaKerjaBaruTahun, 'tahun', masaKerjaBaruBulan, 'bulan');
     
     // Konversi gaji ke number sebelum dikirim
     const dataToSubmit = {
       ...form,
       gaji_pokok_lama: form.gaji_pokok_lama.toString(),
       gaji_pokok_baru: form.gaji_pokok_baru.toString(),
-      tmt_lama: form.tmt_lama || null,
-      tmt_baru: form.tmt_baru || null,
-      masa_kerja_lama: form.masa_kerja_lama || null,
-      masa_kerja_baru: form.masa_kerja_baru || null,
-      sk_tanggal: form.sk_tanggal || null,
-      sk_nomor: form.sk_nomor || null
+      tmt_lama: form.tmt_lama ? new Date(form.tmt_lama).toISOString().split('T')[0] : null,
+      tmt_baru: form.tmt_baru ? new Date(form.tmt_baru).toISOString().split('T')[0] : null,
+      masa_kerja_lama_tahun: masaKerjaLamaTahun,
+      masa_kerja_lama_bulan: masaKerjaLamaBulan,
+      masa_kerja_baru_tahun: masaKerjaBaruTahun,
+      masa_kerja_baru_bulan: masaKerjaBaruBulan,
+      sk_tanggal: form.sk_tanggal ? new Date(form.sk_tanggal).toISOString().split('T')[0] : null,
+      sk_nomor: form.sk_nomor || null,
+      tanggal_cetak: form.tanggal_cetak ? new Date(form.tanggal_cetak).toISOString().split('T')[0] : null
     };
+
+    // Hapus field lama jika ada
+    delete dataToSubmit.masa_kerja_lama;
+    delete dataToSubmit.masa_kerja_baru;
     
+    console.log('Data yang akan disimpan ke Supabase:', dataToSubmit);
     onSubmit(dataToSubmit);
   };
 
@@ -169,13 +208,31 @@ function FormKGB({ onSubmit, onCancel, initialData }) {
               </div>
               <div className="form-group">
                 <label>Masa Kerja Lama</label>
-                <input 
-                  name="masa_kerja_lama" 
-                  type="number" 
-                  className="form-control mb-2" 
-                  value={form.masa_kerja_lama || ''} 
-                  onChange={handleChange} 
-                />
+                <div className="row">
+                  <div className="col-6">
+                    <input 
+                      name="masa_kerja_lama_tahun" 
+                      type="number" 
+                      className="form-control mb-2" 
+                      value={form.masa_kerja_lama_tahun || ''} 
+                      onChange={handleChange}
+                      placeholder="Tahun"
+                      min="0"
+                    />
+                  </div>
+                  <div className="col-6">
+                    <input 
+                      name="masa_kerja_lama_bulan" 
+                      type="number" 
+                      className="form-control mb-2" 
+                      value={form.masa_kerja_lama_bulan || ''} 
+                      onChange={handleChange}
+                      placeholder="Bulan"
+                      min="0"
+                      max="11"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <div className="col-md-6">
@@ -203,13 +260,31 @@ function FormKGB({ onSubmit, onCancel, initialData }) {
               </div>
               <div className="form-group">
                 <label>Masa Kerja Baru</label>
-                <input 
-                  name="masa_kerja_baru" 
-                  type="number" 
-                  className="form-control mb-2" 
-                  value={form.masa_kerja_baru || ''} 
-                  onChange={handleChange} 
-                />
+                <div className="row">
+                  <div className="col-6">
+                    <input 
+                      name="masa_kerja_baru_tahun" 
+                      type="number" 
+                      className="form-control mb-2" 
+                      value={form.masa_kerja_baru_tahun || ''} 
+                      onChange={handleChange}
+                      placeholder="Tahun"
+                      min="0"
+                    />
+                  </div>
+                  <div className="col-6">
+                    <input 
+                      name="masa_kerja_baru_bulan" 
+                      type="number" 
+                      className="form-control mb-2" 
+                      value={form.masa_kerja_baru_bulan || ''} 
+                      onChange={handleChange}
+                      placeholder="Bulan"
+                      min="0"
+                      max="11"
+                    />
+                  </div>
+                </div>
               </div>
               <div className="form-group">
                 <label>Golongan</label>

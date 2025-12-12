@@ -29,7 +29,7 @@ const Sidebar = () => (
       </ul>
     </div>
     <div style={{position: 'absolute', bottom: 20, left: 0, width: '100%', textAlign: 'center', color: '#888', fontSize: 14}}>
-      Created by : OUR TEAM
+      Created by : <a href="http://ekgbpsmojokerto.ct.ws/arissaharinandteam.html" target="_blank" rel="noopener noreferrer" style={{ color: '#888', textDecoration: 'underline' }}>OUR TEAM</a>
     </div>
   </div>
 );

@@ -1,0 +1,31 @@
+name: E-KGB BPS Mojokerto Cron Job
+
+on:
+  schedule:
+    # Jalankan setiap hari jam 00:00 WIB
+    - cron: '0 17 * * *'  # 17:00 UTC = 00:00 WIB
+  # Bisa juga dijalankan manual dari GitHub
+  workflow_dispatch:
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run cron job
+        env:
+          SUPABASE_URL: https://snsimwswblxiyykhkgfv.supabase.co
+          SUPABASE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1eWpqeGhlcWlsbXdyaXhmcmJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyODI0OTAsImV4cCI6MjA2MDg1ODQ5MH0.Cqjwo_4vuu7duHbQR9FvdW5Qi_T8BMsQ15zd1KkEhhI
+          ADMIN_USERNAME: magangbpskotamojokerto@gmail.com
+          ADMIN_PASSWORD: bpskotamojokerto
+        run: node cron-super.js 

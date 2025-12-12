@@ -3,31 +3,41 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.4",
+    "@supabase/supabase-js": "^2.87.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.9.0",
     "bootstrap": "^5.3.5",
     "canvas-confetti": "^1.9.3",
+    "cors": "^2.8.5",
     "docx": "^9.4.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
     "file-saver": "^2.0.5",
     "html-to-image": "^1.11.13",
     "html2pdf.js": "^0.10.3",
     "jspdf": "^3.0.1",
+    "mongodb": "^6.16.0",
+    "mongoose": "^8.15.1",
+    "node-cron": "^4.0.7",
+    "nodemailer": "^7.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.5.2",
     "react-scripts": "5.0.1",
     "react-to-print": "^3.1.0",
     "web-vitals": "^2.1.4",
+    "winston": "^3.17.0",
     "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "nodemon cron-super.js"
   },
   "eslintConfig": {
     "extends": [

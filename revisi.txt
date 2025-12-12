@@ -1,5 +1,0 @@
-revisi:
-
-permasalahan hasil file dari download word logo bps diatas kop surat tidak tampil, muncul tampilan kotak dg x merah saja seperti broken link, ini kesalahan dimana ? padahal logo sudah valid di alamat online berikut : https://www.bps.go.id/_next/image?url=%2Fassets%2Flogo-bps.png&w=96&q=75 dan di local storage sudah ada logo di folder asset "C:\Users\ANTON M\e-kgb-bps-mojokerto\src\assets\bps-logo.png"
-
-dan jika menyertakan logo sebagai string base64 langsung di dalam file Word. maka hasilnya logo akan tampil di halaman utama dengan ukuran besar memenuhi 1 kertas penuh, jadinya menghasilkan 2 kertas atau 2 halaman, halaman 1 logo bps penuh seukuran kertas, dan halaman ke 2 isi surat

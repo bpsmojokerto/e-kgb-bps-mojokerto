@@ -3,12 +3,44 @@ import React, { forwardRef } from 'react';
 const SuratKGB = forwardRef(({ data }, ref) => {
   if (!data) return null;
 
+  console.log('Data yang diterima SuratKGB:', data);
+  console.log('Format tmt_baru:', data.tmt_baru);
+
   // Format tanggal ke format Indonesia
   const formatTanggal = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    const bulan = date.toLocaleString('id-ID', { month: 'long' });
-    return `${date.getDate()} ${bulan} ${date.getFullYear()}`;
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      const hari = date.toLocaleString('id-ID', { weekday: 'long' });
+      const tanggal = date.getDate();
+      const bulan = date.toLocaleString('id-ID', { month: 'long' });
+      const tahun = date.getFullYear();
+      return `${hari}, ${tanggal} ${bulan} ${tahun}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
+  };
+
+  // Format tanggal ke format Indonesia tanpa hari
+  const formatTanggalTanpaHari = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      const tanggal = String(date.getDate()).padStart(2, '0');
+      const bulanNames = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      const bulan = bulanNames[date.getMonth()];
+      const tahun = date.getFullYear();
+      return `${tanggal} ${bulan} ${tahun}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Return original string if parsing fails
+    }
   };
 
   // Fungsi untuk memformat angka ke format rupiah
@@ -47,45 +79,74 @@ const SuratKGB = forwardRef(({ data }, ref) => {
     return nomor;
   };
 
+  // Format bulan dan tahun
+  const formatBulan = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      return date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+    } catch (error) {
+      console.error('Error formatting month:', error);
+      return '';
+    }
+  };
+
+  // Fungsi untuk memformat masa kerja
+  const formatMasaKerja = (tahun, bulan) => {
+    console.log('Formatting masa kerja:', tahun, 'tahun', bulan, 'bulan');
+    if (!tahun && !bulan) return '0 Tahun 0 Bulan';
+    const tahunStr = tahun ? `${tahun} Tahun` : '';
+    const bulanStr = bulan ? `${bulan} Bulan` : '';
+    return [tahunStr, bulanStr].filter(Boolean).join(' ');
+  };
+
+  // Tambahkan console.log untuk debugging
+  console.log('Data yang diterima SuratKGB:', data);
+  console.log('Tanggal cetak:', data.tanggal_cetak);
+  console.log('Format tanggal cetak:', formatTanggal(data.tanggal_cetak));
+  console.log('Masa Kerja Lama:', data.masa_kerja_lama_tahun, 'tahun', data.masa_kerja_lama_bulan, 'bulan');
+  console.log('Masa Kerja Baru:', data.masa_kerja_baru_tahun, 'tahun', data.masa_kerja_baru_bulan);
+
   return (
     <div ref={ref} style={{
       width: '210mm',
-      minHeight: '280mm',
+      maxHeight: '297mm',
       margin: '0 auto',
       color: '#000',
       background: '#fff',
       padding: '5mm 15mm',
-      fontSize: '10pt',
-      lineHeight: '1.3',
+      fontSize: '9.5pt',
+      lineHeight: '1.2',
       fontFamily: 'Arial, sans-serif',
       WebkitPrintColorAdjust: 'exact',
       printColorAdjust: 'exact',
       boxSizing: 'border-box',
-      overflow: 'hidden',
-      pageBreakInside: 'avoid',
-      pageBreakAfter: 'avoid',
-      pageBreakBefore: 'avoid'
+      overflow: 'hidden'
     }}>
-      <div style={{ textAlign: 'center', marginBottom: 3 }}>
+      <div style={{ textAlign: 'center', marginBottom: '2mm' }}>
         <img
-          src={require('../assets/bps-logo.png')}
+          src="../assets/bps-logo.png"
           alt="Logo BPS"
           style={{
-            height: '25mm',
-            width: '28mm',
-            marginBottom: '2mm',
-            display: 'inline-block'
+            height: '20mm',
+            width: '23mm',
+            marginBottom: '1mm',
+            display: 'inline-block',
+            mixBlendMode: 'multiply',
+            backgroundColor: 'transparent'
           }}
+          crossOrigin="anonymous"
         />
         <div style={{
           borderBottom: '2.25pt solid black',
-          padding: '3mm 0',
-          marginBottom: '3mm'
+          padding: '2mm 0',
+          marginBottom: '2mm'
         }}>
           <h5 style={{
-            margin: '2px 0',
+            margin: '1mm 0',
             fontWeight: 'bold',
-            marginBottom: '2mm'
+            marginBottom: '1mm'
           }}>
             BADAN PUSAT STATISTIK<br />KOTA MOJOKERTO
           </h5>
@@ -94,13 +155,13 @@ const SuratKGB = forwardRef(({ data }, ref) => {
 
       {data && (
         <>
-          <div style={{ marginBottom: 4 }}>
+          <div style={{ marginBottom: '2mm' }}>
             <table style={{ width: '100%' }}>
               <tbody>
                 <tr style={{ lineHeight: '1' }}>
                   <td style={{ width: '70px' }}>Nomor</td>
                   <td style={{ width: '250px' }}>: {formatNomorSurat(data.nomor_surat)}</td>
-                  <td style={{ textAlign: 'right' }}>Mojokerto, {formatTanggal(data.tanggal_cetak)}</td>
+                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>Mojokerto, {formatTanggalTanpaHari(data.tanggal_cetak)}</td>
                 </tr>
                 <tr style={{ lineHeight: '1' }}>
                   <td>Lampiran</td>
@@ -111,12 +172,14 @@ const SuratKGB = forwardRef(({ data }, ref) => {
                   <td>: Kenaikan Gaji Berkala</td>
                 </tr>
                 <tr style={{ lineHeight: '1' }}>
-                  <td></td>
-                  <td>Bulan : {data.tmt_baru && new Date(data.tmt_baru).toLocaleString('id-ID', { month: 'long', year: 'numeric' })}</td>
+                  <td>Bulan</td>
+                  <td>: {formatBulan(data.tmt_baru)}</td>
                 </tr>
               </tbody>
             </table>
           </div>
+
+          <div style={{ height: '10mm' }}></div>
 
           <div style={{ marginBottom: 4 }}>
             <p style={{ marginBottom: 2 }}>Kepada Yth.<br />
@@ -128,134 +191,144 @@ const SuratKGB = forwardRef(({ data }, ref) => {
             </p>
           </div>
 
+          <div style={{ height: '10mm' }}></div>
+
           <div style={{ marginBottom: 4 }}>
-            <p style={{ marginBottom: 2 }}>
-              Dengan ini diberitahukan bahwa berhubung dengan telah dipenuhinya masa kerja dan syarat lainnya kepada :
+            <p style={{ marginBottom: '2mm' }}>
+              Dengan ini diberitahukan bahwa berhubung dengan telah dipenuhinya masa kerja dan syarat lainnya kepada:
             </p>
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4mm' }}>
               <tbody>
                 <tr>
-                  <td style={{ width: '8mm' }}>1.</td>
-                  <td style={{ width: '65mm', whiteSpace: 'nowrap' }}>N a m a</td>
-                  <td style={{ width: '5mm', textAlign: 'right' }}>:</td>
+                  <td style={{ width: '30%' }}>1. Nama</td>
+                  <td style={{ width: '5%' }}>:</td>
                   <td>{data.nama}</td>
                 </tr>
                 <tr>
-                  <td>2.</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>Nomor Induk Pegawai (NIP)</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
+                  <td>2. Nomor Induk Pegawai (NIP)</td>
+                  <td>:</td>
                   <td>{formatNIP(data.nip)}</td>
                 </tr>
                 <tr>
-                  <td>3.</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>Pangkat/Jabatan</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
+                  <td>3. Pangkat/Jabatan</td>
+                  <td>:</td>
                   <td>{data.pangkat} / {data.jabatan}</td>
                 </tr>
                 <tr>
-                  <td>4.</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>Kantor/Tempat</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
+                  <td>4. Kantor/Tempat</td>
+                  <td>:</td>
                   <td>{data.kantor}</td>
                 </tr>
                 <tr>
-                  <td>5.</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>Gaji Pokok Lama</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
+                  <td>5. Gaji Pokok Lama</td>
+                  <td>:</td>
                   <td>{formatRupiah(data.gaji_pokok_lama)}</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td colSpan="3">( Atas dasar S.K.P terakhir tentang gaji/pangkat yang ditentukan )</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td style={{ whiteSpace: 'nowrap' }}>a. Oleh Pejabat</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
-                  <td>Presiden Republik Indonesia</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td style={{ whiteSpace: 'nowrap' }}>b. Tanggal, Nomor</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
-                  <td>{formatTanggal(data.sk_tanggal)} Nomor : {data.sk_nomor || '-'}</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td style={{ whiteSpace: 'nowrap' }}>c. Tanggal mulai berlakunya gaji tersebut</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
-                  <td>{formatTanggal(data.tmt_lama)}</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td style={{ whiteSpace: 'nowrap' }}>Masa kerja golongan pada tanggal tsb.</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
-                  <td>{data.masa_kerja_lama} Tahun</td>
                 </tr>
               </tbody>
             </table>
-          </div>
 
-          <div style={{ marginBottom: 4 }}>
-            <p style={{ marginBottom: 2 }}>
-              Diberikan kenaikan gaji berkala hingga memperoleh:
-            </p>
+            <p style={{ marginBottom: '2mm' }}>(Atas dasar S.K.P terakhir tentang gaji/pangkat yang ditentukan)</p>
+            
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4mm' }}>
               <tbody>
                 <tr>
-                  <td style={{ width: '8mm' }}>6.</td>
-                  <td style={{ width: '65mm', whiteSpace: 'nowrap' }}>Gaji Pokok Baru</td>
-                  <td style={{ width: '5mm', textAlign: 'right' }}>:</td>
-                  <td>{formatRupiah(data.gaji_pokok_baru)}</td>
+                  <td style={{ width: '30%', paddingLeft: '20px' }}>a. Oleh Pejabat</td>
+                  <td style={{ width: '5%' }}>:</td>
+                  <td>Presiden Republik Indonesia</td>
                 </tr>
                 <tr>
-                  <td>7.</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>Berdasarkan Masa Kerja</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
-                  <td>{data.masa_kerja_baru} Tahun</td>
+                  <td style={{ paddingLeft: '20px' }}>b. Tanggal, Nomor</td>
+                  <td>:</td>
+                  <td>{formatTanggalTanpaHari(data.sk_tanggal)} Nomor : {data.sk_nomor}</td>
                 </tr>
                 <tr>
-                  <td>8.</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>Dalam Golongan</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
-                  <td>{data.golongan}</td>
+                  <td style={{ paddingLeft: '20px' }}>c. Tanggal mulai berlakunya</td>
+                  <td>:</td>
+                  <td>{formatTanggalTanpaHari(data.tmt_lama)}</td>
                 </tr>
                 <tr>
-                  <td>9.</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>Mulai Tanggal</td>
-                  <td style={{ textAlign: 'right' }}>:</td>
-                  <td>{formatTanggal(data.tmt_baru)}</td>
+                  <td style={{ paddingLeft: '40px' }}>gaji tersebut</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td style={{ paddingLeft: '40px' }}>Masa kerja golongan pada</td>
+                  <td>:</td>
+                  <td>{data.masa_kerja_lama_tahun} Tahun {data.masa_kerja_lama_bulan} Bulan</td>
+                </tr>
+                <tr>
+                  <td style={{ paddingLeft: '40px' }}>tanggal tsb.</td>
+                  <td></td>
+                  <td></td>
                 </tr>
               </tbody>
             </table>
-            <p style={{ marginBottom: 2, marginTop: 2 }}>
-              Diharapkan agar sesuai dengan Peraturan Pemerintah Nomor 5 Tahun 2024, gaji pokok Pegawai Negeri tersebut dapat dibayarkan mulai tanggal tersebut di atas.
+
+            <p style={{ marginBottom: '2mm' }}>Diberikan kenaikan gaji berkala hingga memperoleh:</p>
+            
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '4mm' }}>
+              <tbody>
+                <tr>
+                  <td style={{ width: '30%' }}>6. Gaji Pokok Baru</td>
+                  <td style={{ width: '5%' }}>:</td>
+                  <td>{formatRupiah(data.gaji_pokok_baru)}</td>
+                </tr>
+                <tr>
+                  <td>7. Berdasarkan Masa Kerja</td>
+                  <td>:</td>
+                  <td>{data.masa_kerja_baru_tahun} Tahun {data.masa_kerja_baru_bulan} Bulan</td>
+                </tr>
+                <tr>
+                  <td>8. Dalam Golongan</td>
+                  <td>:</td>
+                  <td>{data.golongan}</td>
+                </tr>
+                <tr>
+                  <td>9. Mulai Tanggal</td>
+                  <td>:</td>
+                  <td>{formatTanggalTanpaHari(data.tmt_baru)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p style={{ marginBottom: 2 }}>
+              Diharapkan agar sesuai dengan Peraturan Pemerintah Nomor 5 Tahun 2024, gaji pokok Pegawai Negeri tersebut
+              dapat dibayarkan mulai tanggal tersebut di atas.
             </p>
           </div>
 
-          <div style={{ marginBottom: 4 }}>
+          <div style={{ height: '2mm' }}></div>
+
+          <div style={{ marginBottom: '2mm' }}>
             <table style={{ width: '100%' }}>
               <tbody>
                 <tr>
                   <td></td>
                   <td style={{ textAlign: 'right' }}>
-                    Kepala BPS Kota Mojokerto<br /><br />
-                    <b>Hasan As'ari S.Si, M.E</b><br />
-                    NIP: 19740808199611001
+                    Kepala BPS Kota Mojokerto<br />
+                    <div style={{ height: '12mm' }}></div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'inline-block', textAlign: 'right', marginRight: '1mm' }}>
+                        <div><b>Hasan As'ari S.Si, M.E</b></div>
+                        <div>NIP: 19740808199611001</div>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div style={{ clear: 'both', marginTop: 6 }}>
-            <b>Tembusan:</b>
-            <ol style={{ margin: 0, paddingLeft: 20 }}>
-              <li style={{ marginBottom: 1 }}>Kepala Kantor Pelayanan Perbendaharaan Negara Kota Mojokerto</li>
-              <li style={{ marginBottom: 1 }}>Kepala BPS Provinsi Jawa Timur</li>
-              <li style={{ marginBottom: 1 }}>Kepala Kantor Cabang BSI, Jl. Empunala No. 9, Surodinawan, Kota Mojokerto</li>
-              <li style={{ marginBottom: 1 }}>Kepala Kantor PT. TASPEN (PERSERO), Jl. Raya Diponegoro 193 Surabaya</li>
-              <li style={{ marginBottom: 1 }}>Arsip</li>
+          <div style={{ marginTop: '3mm' }}>
+            <b>Tembusan: disampaikan kepada Yth.</b>
+            <ol style={{ margin: 0, paddingLeft: '15px', fontSize: '9pt' }}>
+              <li style={{ marginBottom: '0.5mm' }}>Kepala Badan Pusat Statistik di Jakarta.</li>
+              <li style={{ marginBottom: '0.5mm' }}>Kepala Kantor Pelayanan Perbendaharaan Negara Kota Mojokerto</li>
+              <li style={{ marginBottom: '0.5mm' }}>Kepala Kantor Regional BKN, Jl. Letjen S. Parman, Waru di Sidoarjo</li>
+              <li style={{ marginBottom: '0.5mm' }}>Kepala Kantor PT. TASPEN (PERSERO), Jl. Raya Diponegoro 193 Surabaya</li>
+              <li style={{ marginBottom: '0.5mm' }}>Pembuat Daftar Gaji yang bersangkutan</li>
+              <li style={{ marginBottom: '0.5mm' }}>Pegawai yang bersangkutan.</li>
+              <li style={{ marginBottom: '0.5mm' }}>Arsip</li>
             </ol>
           </div>
         </>
